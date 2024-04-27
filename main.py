@@ -4,7 +4,7 @@ import numpy as np
 import cv2 as cv
 import numpy.typing as npt
 
-image = Image.open("clean.png")
+image = Image.open("images/download-1.jpg")
 
 
 def floodfill_helper(
@@ -42,10 +42,6 @@ def floodfill(pixels: npt.NDArray, width: int, height: int):
         current_id += 1
         idx = np.argmin(ids)
         floodfill_helper(ids, pixels, width, height, idx, current_id)
-        Image.fromarray(
-            np.uint8((ids.reshape((width, height)) == current_id).astype(int) * 255)
-        ).save('output/image' + str(current_id) + '.png')
-
     return (ids, current_id)
 
 image_data = np.array(list(image.getdata()))
@@ -57,8 +53,10 @@ ret, label, center = cv.kmeans(np.float32(image_data), K, None, criteria, 10, cv
 # Now convert back into uint8, and make original image
 center = np.uint8(center)
 res = center[label.flatten()]
-res2 = res.reshape((image.width * image.height, 4))
+res2 = res.reshape((image.width * image.height, 3))
+
+Image.fromarray(
+    np.uint8(res2.reshape(image.height, image.width, 3))
+).show()
 
 ids = floodfill(res2, image.width, image.height)
-
-print(ids)
